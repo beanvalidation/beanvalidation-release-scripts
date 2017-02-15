@@ -26,7 +26,7 @@ if [ $PROJECT == "beanvalidation-api" ]; then
 	STABLE_LINK_TARGET="../../beanvalidation/spec/$VERSION_FAMILY/api"
 elif [ $PROJECT == "beanvalidation-tck" ]; then
 	unzip distribution/target/$PROJECT-dist-$RELEASE_VERSION.zip -d distribution/target/unpacked
-	rsync -rzh --progress --delete --protocol=28 distribution/target/unpacked/${PROJECT}-dist-${RELEASE_VERSION}/docs/ filemgmt.jboss.org:/docs_htdocs/hibernate/beanvalidation/tck/$VERSION_FAMILY
+	rsync -rzh --progress --delete --protocol=28 distribution/target/unpacked/${PROJECT}-dist-${RELEASE_VERSION}/docs filemgmt.jboss.org:/docs_htdocs/hibernate/beanvalidation/tck/$VERSION_FAMILY
 	STABLE_LINK_NAME=tck
 	STABLE_LINK_TARGET="../../beanvalidation/tck/$VERSION_FAMILY"
 fi

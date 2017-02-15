@@ -23,7 +23,7 @@ fi
 
 echo "Preparing the release ..."
 
-pushd $WORKSPACE/hibernate-noorm-release-scripts
+pushd $WORKSPACE/beanvalidation-release-scripts
 bundle install
 popd
 
