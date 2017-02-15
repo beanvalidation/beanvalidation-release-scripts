@@ -30,7 +30,7 @@ Choice.options do
     short '-p'
     long '--project=<project>'
     desc 'The project to process'
-    valid %w[ogm validator search]
+    valid %w[beanvalidation-tck beanvalidation-api]
   end
 
   option :release_version, :required => true do
@@ -40,12 +40,6 @@ Choice.options do
   end
 
   separator 'Optional:'
-
-  option :website_release, :required => false do
-    short '-w'
-    long '--create-website-release-template'
-    desc 'If specified the hibernate.org release file for the specified release will be created'
-  end
 
   option :update_readme, :required => false do
     short '-r'
@@ -123,24 +117,6 @@ def get_release_info(release_version)
   abort "ERROR: Version #{release_version} does not exist in JIRA" if jira_version.nil?
   abort "ERROR: Version #{release_version} is not yet released in JIRA" if !jira_version['released']
   jira_version
-end
-
-#######################################################################################################################
-def create_website_release_file(jira_release_info)
-  version = jira_release_info["name"]
-  puts 'Run the following command in the hibernate.org repository to create the release announcement file:'
-  puts ''
-  puts '====='
-  puts 'cat <<EOF > _data/projects/' + $project + '/releases/' + jira_release_info['name'] + '.yml'
-  puts 'version: ' + version
-  puts 'version_family: ' + version.split('.')[0] + '.' + version.split('.')[1]
-  puts 'date: ' + jira_release_info['releaseDate']
-  puts 'stable: ' + (version.include?('Final') ? 'true' : 'false')
-  puts 'announcement_url: <TBD>'
-  puts 'summary: ' + (jira_release_info['description'] or '<TBD>')
-  puts 'displayed: true'
-  puts 'EOF'
-  puts '====='
 end
 
 #######################################################################################################################
@@ -265,10 +241,6 @@ end
 ########################################################################################################################
 release_version = Choice.choices[:release_version]
 jira_release_info = get_release_info release_version
-
-if Choice.choices[:website_release]
-  create_website_release_file jira_release_info
-end
 
 readme_file_name = Choice.choices[:update_readme]
 if !readme_file_name.nil? and !readme_file_name.empty?
