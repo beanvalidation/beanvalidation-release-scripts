@@ -17,8 +17,8 @@ fi
 
 pushd $WORKSPACE
 if [ -f bom/pom.xml ]; then
-	mvn -Prelocation clean versions:set -DnewVersion=$NEW_VERSION -DgenerateBackupPoms=false -f bom/pom.xml
+	mvn clean versions:set -DnewVersion=$NEW_VERSION -DgenerateBackupPoms=false -f bom/pom.xml
 else
-	mvn -Prelocation clean versions:set -DnewVersion=$NEW_VERSION -DgenerateBackupPoms=false
+	mvn clean versions:set -DnewVersion=$NEW_VERSION -DgenerateBackupPoms=false
 fi
 popd
