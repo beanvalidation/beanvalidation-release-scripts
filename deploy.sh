@@ -10,6 +10,6 @@ if [ -z "$PROJECT" ]; then
 	exit 1
 fi
 
-mvn -Prelease clean deploy -s $HOME/.m2/settings-search-release.xml -DskipTests=true -Dcheckstyle.skip=true -DperformRelease=true -Dmaven.compiler.useIncrementalCompilation=false
+mvn -Prelease,documentation-pdf clean deploy -s $HOME/.m2/settings-search-release.xml -DskipTests=true -Dcheckstyle.skip=true -DperformRelease=true -Dmaven.compiler.useIncrementalCompilation=false
 
 popd
