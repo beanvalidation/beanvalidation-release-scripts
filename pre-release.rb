@@ -30,7 +30,7 @@ Choice.options do
     short '-p'
     long '--project=<project>'
     desc 'The project to process'
-    valid %w[beanvalidation-tck beanvalidation-api]
+    valid %w[beanvalidation-tck beanvalidation-api beanvalidation-spec]
   end
 
   option :release_version, :required => true do
@@ -40,6 +40,13 @@ Choice.options do
   end
 
   separator 'Optional:'
+
+  option :release_version_qualifier, :required => false do
+    short '-q'
+    long '--release_version_qualifier=<release_version_qualifier>'
+    desc 'The release version qualifier'
+    default ''
+  end
 
   option :update_readme, :required => false do
     short '-r'
@@ -72,6 +79,9 @@ if $project == "beanvalidation-tck"
   $jira_key='BVTCK'
   $skip_components_in_log = true
 elsif $project == "beanvalidation-api"
+  $jira_key='BVAL'
+  $skip_components_in_log = true
+elsif $project == "beanvalidation-spec"
   $jira_key='BVAL'
   $skip_components_in_log = true
 end
@@ -133,15 +143,16 @@ end
 #    * PROJECT-<key> - <component>  - <summary>
 #    ...
 #
-def create_changelog_update(release_version, skip_components)
+def create_changelog_update(release_version, release_version_qualifier, date_format, skip_components)
   interpolated_url = eval '"' + $jira_issues_url + '"'
   jira_issues = get_json interpolated_url
   processed_issues = process_issues(jira_issues)
 
   max_component_length = calculate_max_component_length(processed_issues)
   issue_type = ''
-  change_log_update = release_version + ' (' +  $now.strftime("%d-%m-%Y") + ")\n"
-  change_log_update << "-------------------------\n"
+  change_log_title = release_version + ' (' + ( release_version_qualifier.strip.size > 0 ? release_version_qualifier.strip + ', ' : '' ) +  $now.strftime(date_format) + ')'
+  change_log_update = change_log_title + "\n"
+  change_log_update << "".ljust(change_log_title.size, '-') + "\n"
   processed_issues.each do |issue|
     current_issue_type = issue['type']
     if issue_type.empty? or !issue_type.eql? current_issue_type
@@ -151,9 +162,9 @@ def create_changelog_update(release_version, skip_components)
     end
 
     # issue key
-    change_log_update << '    * ' << issue['key'] << ' '
+    change_log_update << '    * [' << issue['key'] << '] - '
     unless skip_components
-      change_log_update << '- ' << issue['components'].ljust(max_component_length) << ' - '
+      change_log_update << issue['components'].ljust(max_component_length) << ' - '
     end
     change_log_update << issue['summary'] << "\n"
   end
@@ -229,8 +240,40 @@ def insert_lines(file_name, at_line, new_lines)
 end
 
 #######################################################################################################################
+# Returns true if the given path represents a root directory (/ or C:/)
+def root_directory?(file_path)
+  # Implementation inspired by http://stackoverflow.com/a/4969416:
+  # Does file + ".." resolve to the same directory as file_path?
+  File.directory?(file_path) &&
+    File.expand_path(file_path) == File.expand_path(File.join(file_path, '..'))
+end
+
+# Returns the git root directory given a path inside the repo. Returns nil if
+# the path is not in a git repo.
+def find_git_repo(start_path = '.')
+  raise NoSuchPathError unless File.exists?(start_path)
+
+  current_path = File.expand_path(start_path)
+
+  # for clarity: set to an explicit nil and then just return whatever
+  # the current value of this variable is (nil or otherwise)
+  return_path = nil
+
+  until root_directory?(current_path)
+    if File.exists?(File.join(current_path, '.git'))
+      # done
+      return_path = current_path
+      break
+    else
+      # go up a directory and try again
+      current_path = File.dirname(current_path)
+    end
+  end
+  return_path
+end
+
 def git_commit(file_name, message)
-  working_dir = File.dirname file_name
+  working_dir = find_git_repo(File.dirname file_name)
   git = Git.open(working_dir)
   git.add(file_name)
   git.commit(message)
@@ -240,6 +283,7 @@ end
 # Putting it all together
 ########################################################################################################################
 release_version = Choice.choices[:release_version]
+release_version_qualifier = Choice.choices[:release_version_qualifier]
 jira_release_info = get_release_info release_version
 
 readme_file_name = Choice.choices[:update_readme]
@@ -253,7 +297,15 @@ change_log_file_name = Choice.choices[:update_changelog]
 if !change_log_file_name.nil? and !change_log_file_name.empty?
   abort "ERROR: #{change_log_file_name} is not a valid file" unless File.exist?(change_log_file_name)
 
-  change_log_update = create_changelog_update(release_version, $skip_components_in_log)
-  insert_lines(change_log_file_name, 6, change_log_update)
-  git_commit(change_log_file_name, "[Jenkins release job] changelog.txt updated by release build #{release_version}")
+  if $project == "beanvalidation-spec"
+    date_format = "%Y-%m-%d"
+    line_number = 17
+  else
+    date_format = "%d-%m-%Y"
+    line_number = 6
+  end
+
+  change_log_update = create_changelog_update(release_version, release_version_qualifier, date_format, $skip_components_in_log)
+  insert_lines(change_log_file_name, line_number, change_log_update)
+  git_commit(change_log_file_name, "[Jenkins release job] changelog updated by release build #{release_version}")
 end
