@@ -16,7 +16,7 @@ else
 fi
 
 if [ "$PROJECT" == "beanvalidation-tck" ]; then
-	CHANGELOG="$WORKSPACE/changelog.txt"
+	CHANGELOG="-c $WORKSPACE/changelog.txt"
 else
 	CHANGELOG=""
 fi
@@ -29,7 +29,7 @@ popd
 
 pushd $WORKSPACE
 
-./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION -r $WORKSPACE/README.md -c $CHANGELOG
+./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION -r $WORKSPACE/README.md $CHANGELOG
 bash beanvalidation-release-scripts/validate-release.sh $PROJECT $RELEASE_VERSION
 bash beanvalidation-release-scripts/update-version.sh $PROJECT $RELEASE_VERSION
 bash beanvalidation-release-scripts/create-tag.sh $PROJECT $RELEASE_VERSION
