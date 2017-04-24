@@ -25,19 +25,15 @@ if [ -z "$BRANCH" ]; then
         exit 1
 fi
 
-if [[ "$RELEASE_VERSION_QUALIFIER" = " " ]]; then
-	RELEASE_VERSION_QUALIFIER=""
-elif [ ! -z "$RELEASE_VERSION_QUALIFIER" ] && [[ ! "$RELEASE_VERSION_QUALIFIER" = " "* ]]; then
-	RELEASE_VERSION_QUALIFIER=" $RELEASE_VERSION_QUALIFIER"
-fi
-
 pushd ${WORKSPACE}
 
 # Update the versions in the build.xml file
 sed -i 's@<property name="bv\.version" value=".*" />@<property name="bv.version" value="'${RELEASE_VERSION}'" />@' build.xml
-# there is an issue with this specific expression if passed directly to sed
-sed_expression='s@<property name="bv\.version\.qualifier" value=".*" />@<property name="bv.version.qualifier" value="'${RELEASE_VERSION_QUALIFIER}'" />@'
-sed -i "${sed_expression}" build.xml
+if [ ! -z "$RELEASE_VERSION_QUALIFIER" ]; then
+	# there is an issue with this specific expression if passed directly to sed
+	sed_expression='s@<property name="bv\.version\.qualifier" value=".*" />@<property name="bv.version.qualifier" value=" ('${RELEASE_VERSION_QUALIFIER}')" />@'
+	sed -i "${sed_expression}" build.xml
+fi
 sed -i 's@<property name="bv\.revdate" value=".*" />@<property name="bv.revdate" value="'$(date +%Y-%m-%d)'" />@' build.xml
 
 git add build.xml
