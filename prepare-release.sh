@@ -15,12 +15,6 @@ else
 	echo "Setting version to '$RELEASE_VERSION'";
 fi
 
-if [ "$PROJECT" == "beanvalidation-tck" ]; then
-	CHANGELOG="-c $WORKSPACE/changelog.txt"
-else
-	CHANGELOG=""
-fi
-
 echo "Preparing the release ..."
 
 pushd $WORKSPACE/beanvalidation-release-scripts
@@ -29,7 +23,11 @@ popd
 
 pushd $WORKSPACE
 
-./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION -r $WORKSPACE/README.md $CHANGELOG
+if [ "$PROJECT" == "beanvalidation-tck" ]; then
+	./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION -r $WORKSPACE/README.md -c $WORKSPACE/changelog.txt
+else
+	./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION
+fi
 bash beanvalidation-release-scripts/validate-release.sh $PROJECT $RELEASE_VERSION
 bash beanvalidation-release-scripts/update-version.sh $PROJECT $RELEASE_VERSION
 bash beanvalidation-release-scripts/create-tag.sh $PROJECT $RELEASE_VERSION
