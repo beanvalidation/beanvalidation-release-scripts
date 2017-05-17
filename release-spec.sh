@@ -3,9 +3,10 @@
 RELEASE_VERSION=$1
 VERSION_FAMILY=$2
 RELEASE_VERSION_QUALIFIER=$3
-NEW_VERSION=$4
-BRANCH=$5
-PUSH_CHANGES=${6:-false}
+DELIVERY_QUALIFIER=$4
+NEW_VERSION=$5
+BRANCH=$6
+PUSH_CHANGES=${7:-false}
 WORKSPACE=${WORKSPACE:-'.'}
 
 if [ -z "$RELEASE_VERSION" ]; then
@@ -22,6 +23,10 @@ if [ -z "$NEW_VERSION" ]; then
 fi
 if [ -z "$BRANCH" ]; then
         echo "ERROR: Branch argument not supplied"
+        exit 1
+fi
+if [ -z "$DELIVERY_QUALIFIER" ]; then
+        echo "ERROR: Delivery qualifier not supplied, use '-' if you don't want a delivery"
         exit 1
 fi
 
@@ -79,6 +84,18 @@ if [ "$PUSH_CHANGES" = true ] ; then
 	popd
 else
 	echo "WARNING: Not pushing changes to the upstream repository."
+fi
+
+# build the delivery if a delivery version is provided
+if [ "$DELIVERY_QUALIFIER" != "-" ]; then
+	mkdir -p target/delivery
+	pushd target/delivery
+	NAME="bean_validation-${RELEASE_VERSION//./_}-${DELIVERY_QUALIFIER}-spec"
+	mkdir -p ${NAME}/{pdf,html}
+	cp -a ../html/index.html ${NAME}/html/${NAME}.html
+	cp -a ../pdf/index.pdf ${NAME}/pdf/${NAME}.pdf
+	zip -r ${NAME}.zip ${NAME}
+	popd
 fi
 
 popd
