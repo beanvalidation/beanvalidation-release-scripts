@@ -15,6 +15,8 @@ require 'json'
 require 'net/https'
 require 'choice'
 require 'git'
+require 'word_wrap'
+require 'word_wrap/core_ext'
 
 $now = Time.now
 
@@ -74,16 +76,12 @@ end
 ########################################################################################################################
 # Project specific configuration
 $project=Choice.choices[:project]
-$skip_components_in_log = false
 if $project == "beanvalidation-tck"
   $jira_key='BVTCK'
-  $skip_components_in_log = true
 elsif $project == "beanvalidation-api"
   $jira_key='BVAL'
-  $skip_components_in_log = true
 elsif $project == "beanvalidation-spec"
   $jira_key='BVAL'
-  $skip_components_in_log = true
 end
 
 # REST URL used to retrieve all release versions of the project - https://docs.atlassian.com/jira/REST/latest/#d2e4023
@@ -143,7 +141,7 @@ end
 #    * PROJECT-<key> - <component>  - <summary>
 #    ...
 #
-def create_changelog_update(release_version, release_version_qualifier, date_format, skip_components)
+def create_changelog_update(release_version, release_version_qualifier, date_format, word_wrap)
   interpolated_url = eval '"' + $jira_issues_url + '"'
   jira_issues = get_json interpolated_url
   processed_issues = process_issues(jira_issues)
@@ -162,11 +160,17 @@ def create_changelog_update(release_version, release_version_qualifier, date_for
     end
 
     # issue key
-    change_log_update << '    * [' << issue['key'] << '] - '
-    unless skip_components
-      change_log_update << issue['components'].ljust(max_component_length) << ' - '
+    issue_update = '    * [' << issue['key'] << '] - '
+    if word_wrap
+      line_length = 94 - issue_update.size
+      wrapped_issue_summary = issue['summary'].wrap(line_length).rstrip
+      wrapped_issue_summary = wrapped_issue_summary.gsub(/\n/, "\n" + " " * issue_update.size)
+      issue_update << wrapped_issue_summary << "\n"
+    else
+      issue_update << issue['summary'] << "\n"
     end
-    change_log_update << issue['summary'] << "\n"
+
+    change_log_update << issue_update
   end
 
   change_log_update << "\n"
@@ -300,12 +304,14 @@ if !change_log_file_name.nil? and !change_log_file_name.empty?
   if $project == "beanvalidation-spec"
     date_format = "%Y-%m-%d"
     line_number = 13
+    word_wrap = true
   else
     date_format = "%d-%m-%Y"
     line_number = 6
+    word_wrap = false
   end
 
-  change_log_update = create_changelog_update(release_version, release_version_qualifier, date_format, $skip_components_in_log)
+  change_log_update = create_changelog_update(release_version, release_version_qualifier, date_format, word_wrap)
   insert_lines(change_log_file_name, line_number, change_log_update)
   git_commit(change_log_file_name, "[Jenkins release job] changelog updated by release build #{release_version}")
 end

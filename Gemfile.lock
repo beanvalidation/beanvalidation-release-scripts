@@ -4,6 +4,8 @@ GEM
     choice (0.2.0)
     git (1.2.9.1)
     json (1.8.2)
+    json (1.8.2-java)
+    word_wrap (1.0.0)
 
 PLATFORMS
   java
@@ -13,6 +15,7 @@ DEPENDENCIES
   choice
   git
   json
+  word_wrap
 
 BUNDLED WITH
-   1.11.2
+   1.12.5
