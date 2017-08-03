@@ -59,7 +59,7 @@ if [[ $RELEASE_VERSION =~ .*\.Final ]]; then
 		# don't indent the EOF!
 		sftp filemgmt.jboss.org -b <<EOF
 cd docs_htdocs/hibernate/stable/beanvalidation
-rm ${PROJECT}
+rm ${STABLE_LINK_NAME}
 ln -s ${STABLE_LINK_TARGET} ${STABLE_LINK_NAME}
 EOF
 	fi
