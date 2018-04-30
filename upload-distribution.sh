@@ -31,13 +31,13 @@ cat >$CREATE_DIR_SFTP_SCRIPT <<EOF
 mkdir $DIST_PARENT_DIR/$RELEASE_VERSION
 quit
 EOF
-try_multiple_times sftp -b $CREATE_DIR_SFTP_SCRIPT frs.sourceforge.net || echo "Directory already exists. Skipping creation."
+try_multiple_times sftp -b $CREATE_DIR_SFTP_SCRIPT hibernate-ci@frs.sourceforge.net || echo "Directory already exists. Skipping creation."
 rm $CREATE_DIR_SFTP_SCRIPT
 
-try_multiple_times scp -v README.md frs.sourceforge.net:$DIST_PARENT_DIR/$RELEASE_VERSION/
-try_multiple_times scp -v changelog.txt frs.sourceforge.net:$DIST_PARENT_DIR/$RELEASE_VERSION/
-try_multiple_times scp -v distribution/target/$PROJECT-dist-$RELEASE_VERSION.zip frs.sourceforge.net:$DIST_PARENT_DIR/$RELEASE_VERSION/
-try_multiple_times scp -v distribution/target/$PROJECT-dist-$RELEASE_VERSION.tar.gz frs.sourceforge.net:$DIST_PARENT_DIR/$RELEASE_VERSION/
+try_multiple_times scp -v README.md hibernate-ci@frs.sourceforge.net:$DIST_PARENT_DIR/$RELEASE_VERSION/
+try_multiple_times scp -v changelog.txt hibernate-ci@frs.sourceforge.net:$DIST_PARENT_DIR/$RELEASE_VERSION/
+try_multiple_times scp -v distribution/target/$PROJECT-dist-$RELEASE_VERSION.zip hibernate-ci@frs.sourceforge.net:$DIST_PARENT_DIR/$RELEASE_VERSION/
+try_multiple_times scp -v distribution/target/$PROJECT-dist-$RELEASE_VERSION.tar.gz hibernate-ci@frs.sourceforge.net:$DIST_PARENT_DIR/$RELEASE_VERSION/
 
 popd
 
