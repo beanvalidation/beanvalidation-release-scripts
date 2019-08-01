@@ -303,7 +303,7 @@ if !change_log_file_name.nil? and !change_log_file_name.empty?
 
   if $project == "beanvalidation-spec"
     date_format = "%Y-%m-%d"
-    line_number = 13
+    line_number = 18
     word_wrap = true
   else
     date_format = "%d-%m-%Y"
