@@ -19,14 +19,6 @@ fi
 
 git fetch --tags
 
-if [ `git tag -l | grep $RELEASE_VERSION` ]
-then
-        echo "ERROR: tag '$RELEASE_VERSION' already exists, aborting. If you really want to release this version, delete the tag in the workspace first."
-        exit 1
-else
-        echo "SUCCESS: tag '$RELEASE_VERSION' does not exist"
-fi
-
 if [ "$PROJECT" == "beanvalidation-tck" ]; then
 	if grep -q "$RELEASE_VERSION" $README ;
 	then

@@ -22,6 +22,7 @@ bundle install
 popd
 
 pushd $WORKSPACE
+git checkout ${RELEASE_VERSION}
 
 if [ "$PROJECT" == "beanvalidation-tck" ]; then
 	./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION -r $WORKSPACE/README.md -c $WORKSPACE/changelog.txt
@@ -29,8 +30,6 @@ else
 	./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION
 fi
 bash beanvalidation-release-scripts/validate-release.sh $PROJECT $RELEASE_VERSION
-bash beanvalidation-release-scripts/update-version.sh $PROJECT $RELEASE_VERSION
-bash beanvalidation-release-scripts/create-tag.sh $PROJECT $RELEASE_VERSION
 
 popd
 
