@@ -25,7 +25,7 @@ pushd $WORKSPACE
 git checkout ${RELEASE_VERSION}
 
 if [ "$PROJECT" == "beanvalidation-tck" ]; then
-	./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION -r $WORKSPACE/README.md -c $WORKSPACE/changelog.txt
+	./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION
 else
 	./beanvalidation-release-scripts/pre-release.rb -p $PROJECT -v $RELEASE_VERSION
 fi
