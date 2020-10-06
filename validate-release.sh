@@ -19,22 +19,4 @@ fi
 
 git fetch --tags
 
-if [ "$PROJECT" == "beanvalidation-tck" ]; then
-	if grep -q "$RELEASE_VERSION" $README ;
-	then
-		echo "SUCCESS: $README looks updated"
-	else
-		echo "ERROR: $README has not been updated"
-		exit 1
-	fi
-
-	if grep -q "$RELEASE_VERSION" $CHANGELOG ;
-	then
-		echo "SUCCESS: $CHANGELOG looks updated"
-	else
-		echo "ERROR: $CHANGELOG has not been updated"
-		exit 1
-	fi
-fi
-
 popd
